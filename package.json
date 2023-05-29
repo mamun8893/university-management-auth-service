@@ -13,7 +13,7 @@
   },
   "author": "Mamunur Rashid",
   "license": "ISC",
-  "lint-staged":{
+  "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": "yarn lint-prettier"
   },
   "devDependencies": {
