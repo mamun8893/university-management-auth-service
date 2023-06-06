@@ -8,13 +8,13 @@
     "lint:check": "eslint --ignore-path .eslintignore --ext .js,.ts .",
     "lint:fix": "eslint . --fix",
     "prettier:check": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
-    "prettier:fix":"prettier --write",
+    "prettier:fix": "prettier --write",
     "lint-prettier": "yarn lint:check && yarn prettier:check",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mamunur Rashid",
   "license": "ISC",
-  "lint-staged":{
+  "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": "yarn lint-prettier"
   },
   "devDependencies": {
@@ -34,6 +34,7 @@
     "dotenv": "^16.0.3",
     "eslint": "^8.41.0",
     "express": "^4.18.2",
-    "mongoose": "^7.2.1"
+    "mongoose": "^7.2.1",
+    "winston": "^3.9.0"
   }
 }
