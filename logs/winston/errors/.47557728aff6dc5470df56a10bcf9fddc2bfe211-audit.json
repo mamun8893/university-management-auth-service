@@ -29,6 +29,11 @@
             "date": 1686313317117,
             "name": "F:\\2023\\Next Level Web Development\\university-management\\university-management-auth-service\\logs\\winston\\errors\\phu-2023-06-09-18-error.log",
             "hash": "bae2faf87afa69e60ee23a92bdcb145f1c79c9c131047aab0c5303006e7c26cb"
+        },
+        {
+            "date": 1686321224850,
+            "name": "F:\\2023\\Next Level Web Development\\university-management\\university-management-auth-service\\logs\\winston\\errors\\phu-2023-06-09-20-error.log",
+            "hash": "3ecd279b9c3ea10289499e568c5948722b64011243899d979893d14601dee796"
         }
     ],
     "hashType": "sha256"
