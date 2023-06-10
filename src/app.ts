@@ -1,7 +1,7 @@
 import express, { Application } from 'express'
 import cors from 'cors'
 import globalErrorHandler from './app/middlewares/globalErrorHandler'
-import { userRoutes } from './app/modules/user/user.route'
+import routers from './routes/routes'
 
 const app: Application = express()
 
@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }))
 
 //Api Route
 
-app.use('/api/v1/users', userRoutes)
+app.use('/api/v1', routers)
 
 //testong error
 // app.get('/error', async (req, res, next) => {
