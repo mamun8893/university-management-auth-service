@@ -1,8 +1,12 @@
-import { NextFunction, Request, Response } from 'express'
+import { NextFunction, Request, RequestHandler, Response } from 'express'
 import { academicSemesterService } from './academicSemester.service'
 import sendResponse from '../../../shared/sendResponse'
 import { IAcademicSemester } from './academicSemester.interface'
 import httpStatus from 'http-status'
+import pick from '../../../shared/pick'
+import { paginationFields } from '../../../constant/pagination'
+
+//Create academic semester
 
 const academicSemesterCreate = async (
   req: Request,
@@ -25,6 +29,28 @@ const academicSemesterCreate = async (
   }
 }
 
+//Get all academic semester
+
+const getAllSemester: RequestHandler = async (req, res, next) => {
+  const paginationOption = pick(req.query, paginationFields)
+
+  try {
+    const result = await academicSemesterService.getAllAcademicSemesterFromDB(
+      paginationOption
+    )
+    sendResponse<IAcademicSemester[]>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Get all academic semester successfully!',
+      meta: result.meta,
+      data: result.data,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const academicSemesterController = {
   academicSemesterCreate,
+  getAllSemester,
 }
