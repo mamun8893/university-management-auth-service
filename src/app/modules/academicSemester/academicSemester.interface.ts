@@ -29,3 +29,7 @@ export type AcademicSemesterModel = Model<
   IAcademicSemester,
   Record<string, unknown>
 >
+
+export type IAcademicSemesterFilters = {
+  searchTerm?: string
+}
