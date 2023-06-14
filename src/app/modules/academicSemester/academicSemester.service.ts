@@ -61,8 +61,6 @@ const getAllAcademicSemesterFromDB = async (
     andConditions.push({ $and: filterConditions })
   }
 
-  console.log('and con', andConditions)
-
   //pagination
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelper.calculatePagination(paginationOption)
@@ -71,7 +69,11 @@ const getAllAcademicSemesterFromDB = async (
   if (sortBy && sortOrder) {
     sortConditions[sortBy] = sortOrder
   }
-  const result = await AcademicSemester.find({ $and: andConditions })
+
+  const whereConditions =
+    andConditions.length > 0 ? { $and: andConditions } : {}
+
+  const result = await AcademicSemester.find(whereConditions)
     .sort(sortConditions)
     .skip(skip)
     .limit(limit)
@@ -87,7 +89,14 @@ const getAllAcademicSemesterFromDB = async (
   }
 }
 
+//get academic semester by id
+const getAcademicSemesterByIdFromDB = async (id: string) => {
+  const result = await AcademicSemester.findById(id)
+  return result
+}
+
 export const academicSemesterService = {
   createAcademicSemesterToDB,
   getAllAcademicSemesterFromDB,
+  getAcademicSemesterByIdFromDB,
 }
