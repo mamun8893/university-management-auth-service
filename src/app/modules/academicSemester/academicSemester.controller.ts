@@ -55,7 +55,7 @@ const getAllSemester: RequestHandler = async (req, res, next) => {
 
 //get academic semester by id
 
-const getAcademicSemesterById: RequestHandler = async (req, res, next) => {
+const getAcademicSemesterById: RequestHandler = async (req, res) => {
   const { id } = req.params
   try {
     const result = await academicSemesterService.getAcademicSemesterByIdFromDB(
@@ -68,13 +68,13 @@ const getAcademicSemesterById: RequestHandler = async (req, res, next) => {
       data: result,
     })
   } catch (error) {
-    next(error)
+    // console.log(error)
   }
 }
 
 //update academic semester by id
 
-const updateAcademicSemester: RequestHandler = async (req, res, next) => {
+const updateAcademicSemester: RequestHandler = async (req, res) => {
   const { id } = req.params
   const { ...payload } = req.body
   try {
@@ -90,7 +90,25 @@ const updateAcademicSemester: RequestHandler = async (req, res, next) => {
       data: result,
     })
   } catch (error) {
-    next(error)
+    console.log(error)
+  }
+}
+
+// delete academic semester by id
+
+const deleteAcademicSemester: RequestHandler = async (req, res) => {
+  const { id } = req.params
+  try {
+    const result =
+      await academicSemesterService.deleteAcademicSemesterByIdFromDB(id)
+    sendResponse<IAcademicSemester>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Delete academic semester  successfully!',
+      data: result,
+    })
+  } catch (error) {
+    // console.log(error)
   }
 }
 
@@ -99,4 +117,5 @@ export const academicSemesterController = {
   getAllSemester,
   getAcademicSemesterById,
   updateAcademicSemester,
+  deleteAcademicSemester,
 }

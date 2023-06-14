@@ -4,7 +4,7 @@ import sendResponse from '../../../shared/sendResponse'
 import { IUser } from './user.interface'
 import httpStatus from 'http-status'
 
-const createUser: RequestHandler = async (req, res, next) => {
+const createUser: RequestHandler = async (req, res) => {
   const { ...userData } = req.body
   try {
     const result = await userService.createUserToDB(userData)
@@ -15,7 +15,7 @@ const createUser: RequestHandler = async (req, res, next) => {
       data: result,
     })
   } catch (error: any) {
-    next(error)
+    console.log(error)
   }
 }
 
