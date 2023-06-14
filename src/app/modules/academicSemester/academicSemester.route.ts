@@ -12,7 +12,11 @@ router.post(
 )
 
 router.get('/', academicSemesterController.getAllSemester)
-router.patch('/:id', academicSemesterController.updateAcademicSemester)
+router.patch(
+  '/:id',
+  validateRequest(academicSemesterValidation.updateAcademicSemesterZodSchema),
+  academicSemesterController.updateAcademicSemester
+)
 router.get('/:id', academicSemesterController.getAcademicSemesterById)
 
 export const academicSemesterRoutes = router
