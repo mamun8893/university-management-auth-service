@@ -37,7 +37,7 @@ const getAllAcademicSemesterFromDB = async (
   const { searchTerm, ...filtersData } = filters
 
   const andConditions = []
-  console.log(Object.entries(filtersData))
+
   if (searchTerm) {
     const orConditions: { [key: string]: { $regex: RegExp } }[] = []
     academicSemesterSearchableFields.forEach(field => {
