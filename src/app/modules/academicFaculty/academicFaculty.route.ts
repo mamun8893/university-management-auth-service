@@ -10,6 +10,14 @@ router.post(
   validateRequest(academicFacultyValidation.createAcademicFacultyZodSchema),
   academicFacultyController.academicFacultyCreate
 )
+
+router.get('/:id', academicFacultyController.getAcademicFacultyById)
+router.patch(
+  '/:id',
+  validateRequest(academicFacultyValidation.updateAcademicFacultyZodSchema),
+  academicFacultyController.updateAcademicFacultyById
+)
+router.delete('/:id', academicFacultyController.deleteAcademicFacultyById)
 router.get('/', academicFacultyController.getAllFaculty)
 
 export const academicFacultyRoutes = router

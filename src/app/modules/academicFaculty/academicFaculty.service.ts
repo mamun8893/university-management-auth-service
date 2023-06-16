@@ -9,6 +9,8 @@ import {
 } from './academicFaculty.interface'
 import { AcademicFaculty } from './academicFaculty.modal'
 
+//create academic faculty
+
 const createAcademicFacultyFromDB = async (
   payload: IAcademicFaculty
 ): Promise<IAcademicFaculty> => {
@@ -79,7 +81,36 @@ const getAllAcademicFacultyFromDB = async (
   }
 }
 
+//get academic semester by id
+
+const getAcademicFacultyByIdFromDB = async (id: string) => {
+  const result = await AcademicFaculty.findById(id)
+  return result
+}
+
+//update academic semester
+
+const updateAcademicFacultyByIdFromDB = async (
+  id: string,
+  payload: Partial<IAcademicFaculty>
+) => {
+  const result = await AcademicFaculty.findByIdAndUpdate({ _id: id }, payload, {
+    new: true,
+  })
+  return result
+}
+
+//delete academic semester
+
+const deleteAcademicFacultyByIdFromDB = async (id: string) => {
+  const result = await AcademicFaculty.findByIdAndDelete(id)
+  return result
+}
+
 export const academicFacultyService = {
   createAcademicFacultyFromDB,
   getAllAcademicFacultyFromDB,
+  getAcademicFacultyByIdFromDB,
+  updateAcademicFacultyByIdFromDB,
+  deleteAcademicFacultyByIdFromDB,
 }

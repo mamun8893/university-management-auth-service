@@ -6,6 +6,7 @@ import { academicFacultyService } from './academicFaculty.service'
 import { paginationFields } from '../../../constant/pagination'
 import { academicFacultyFilterFields } from './academicfaculty.constant'
 import pick from '../../../shared/pick'
+import ApiError from '../../../errors/ApiError'
 
 //Create academic faculty
 
@@ -49,7 +50,67 @@ const getAllFaculty: RequestHandler = async (req, res, next) => {
   }
 }
 
+//get academic faculty by id
+
+const getAcademicFacultyById: RequestHandler = async (req, res) => {
+  const { id } = req.params
+  try {
+    const result = await academicFacultyService.getAcademicFacultyByIdFromDB(id)
+    sendResponse<IAcademicFaculty>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Get academic faculty  successfully!',
+      data: result,
+    })
+  } catch (error) {
+    throw new ApiError(httpStatus.NOT_FOUND, `${error}`)
+  }
+}
+
+//update academic faculty by id
+
+const updateAcademicFacultyById: RequestHandler = async (req, res) => {
+  const { id } = req.params
+  const { ...updateData } = req.body
+  try {
+    const result = await academicFacultyService.updateAcademicFacultyByIdFromDB(
+      id,
+      updateData
+    )
+    sendResponse<IAcademicFaculty>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Update academic faculty  successfully!',
+      data: result,
+    })
+  } catch (error) {
+    throw new ApiError(httpStatus.NOT_FOUND, `${error}`)
+  }
+}
+
+//delete academic faculty by id
+
+const deleteAcademicFacultyById: RequestHandler = async (req, res) => {
+  const { id } = req.params
+  try {
+    const result = await academicFacultyService.deleteAcademicFacultyByIdFromDB(
+      id
+    )
+    sendResponse<IAcademicFaculty>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Delete academic faculty  successfully!',
+      data: result,
+    })
+  } catch (error) {
+    throw new ApiError(httpStatus.NOT_FOUND, `${error}`)
+  }
+}
+
 export const academicFacultyController = {
   academicFacultyCreate,
   getAllFaculty,
+  getAcademicFacultyById,
+  updateAcademicFacultyById,
+  deleteAcademicFacultyById,
 }
