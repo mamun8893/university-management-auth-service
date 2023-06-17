@@ -139,6 +139,31 @@
             "date": 1686942534264,
             "name": "F:\\2023\\Next Level Web Development\\university-management\\university-management-auth-service\\logs\\winston\\errors\\phu-2023-06-17-01-error.log",
             "hash": "863b53fda9ff1e89b06b7499bca7f1b3ff99ad20a1f060d77c2d25ac13b7f646"
+        },
+        {
+            "date": 1686991819050,
+            "name": "F:\\2023\\Next Level Web Development\\university-management\\university-management-auth-service\\logs\\winston\\errors\\phu-2023-06-17-14-error.log",
+            "hash": "6e9de69fe2f47ba19f040eb255ce27175e45ede2b66e92d24dcb78da7cdeb886"
+        },
+        {
+            "date": 1686992502113,
+            "name": "F:\\2023\\Next Level Web Development\\university-management\\university-management-auth-service\\logs\\winston\\errors\\phu-2023-06-17-15-error.log",
+            "hash": "415943a6e500df6b3a63874d9cd643f38902197b255b77ad8e40534a8b8752d1"
+        },
+        {
+            "date": 1687007814272,
+            "name": "F:\\2023\\Next Level Web Development\\university-management\\university-management-auth-service\\logs\\winston\\errors\\phu-2023-06-17-19-error.log",
+            "hash": "43c744778c4cc87309fa9e3da9253cc76dfe50a0ddcf1b6d06d0fc89ec5e9783"
+        },
+        {
+            "date": 1687024255215,
+            "name": "F:\\2023\\Next Level Web Development\\university-management\\university-management-auth-service\\logs\\winston\\errors\\phu-2023-06-17-23-error.log",
+            "hash": "69fbb56cb30785df3fa1faec3aa1a906876846acc6c795ed979799b4b0893f47"
+        },
+        {
+            "date": 1687029529036,
+            "name": "F:\\2023\\Next Level Web Development\\university-management\\university-management-auth-service\\logs\\winston\\errors\\phu-2023-06-18-01-error.log",
+            "hash": "a5ef340a2b9f8f76f92a6cd3eacad01aa668cd3a0bd66e84faeca013d907d4f7"
         }
     ],
     "hashType": "sha256"
