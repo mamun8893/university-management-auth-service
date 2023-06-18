@@ -9,7 +9,7 @@ export const fundLastUserId = async () => {
 }
 
 export const generateStudentId = async (
-  academicSemester: IAcademicSemester
+  academicSemester: IAcademicSemester | any
 ) => {
   const lastUserId = await fundLastUserId()
   const currentId = lastUserId.toString().padStart(5, '0')
