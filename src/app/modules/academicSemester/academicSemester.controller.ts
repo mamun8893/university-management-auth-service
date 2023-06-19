@@ -35,8 +35,6 @@ const academicSemesterCreate = async (
 const getAllSemester: RequestHandler = async (req, res, next) => {
   const filters = pick(req.query, academicSemesterFilterFields)
   const paginationOption = pick(req.query, paginationFields)
-  console.log(req.query)
-  console.log(filters)
 
   try {
     const result = await academicSemesterService.getAllAcademicSemesterFromDB(

@@ -1,0 +1,6 @@
+Tue Jun 20 2023 0:33:52 [ITclan] error: MongoServerError: E11000 duplicate key error collection: university-management.students index: email_1 dup key: { email: "user@gmail.com" }
+Tue Jun 20 2023 0:35:35 [ITclan] error: MongoServerError: E11000 duplicate key error collection: university-management.students index: contactNo_1 dup key: { contactNo: "user_4" }
+Tue Jun 20 2023 0:36:41 [ITclan] error: MongoServerError: E11000 duplicate key error collection: university-management.students index: contactNo_1 dup key: { contactNo: "user_4" }
+Tue Jun 20 2023 0:39:4 [ITclan] error: Cast to ObjectId failed for value "260300003" (type string) at path "_id" for model "Student"
+Tue Jun 20 2023 0:40:20 [ITclan] error: Cast to ObjectId failed for value "{ id: '260300003' }" (type Object) at path "_id" for model "Student"
+Tue Jun 20 2023 0:41:50 [ITclan] error: Cast to ObjectId failed for value "260300003" (type string) at path "_id" for model "Student"
