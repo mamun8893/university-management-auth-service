@@ -13,7 +13,8 @@ import { handleCastErrorDB } from '../../errors/handleCastError'
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   config.env === 'development'
     ? console.log('GlobalErrorHandle', err)
-    : errorLogger.error(err)
+    : errorLogger.error('->>>>', err)
+  console.log('GlobalErrorHandle', err)
 
   let statusCode = 500
   let message = 'Something went wrong'

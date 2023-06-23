@@ -1,0 +1,7 @@
+Fri Jun 23 2023 18:5:27 [ITclan] error: ValidationError: designation: Path `designation` is required., managementDepartment: Path `managementDepartment` is required.
+Fri Jun 23 2023 18:7:21 [ITclan] error: Cannot call abortTransaction after calling commitTransaction
+Fri Jun 23 2023 18:11:28 [ITclan] error: Cannot call abortTransaction after calling commitTransaction
+Fri Jun 23 2023 18:13:24 [ITclan] error: Cannot call abortTransaction after calling commitTransaction
+Fri Jun 23 2023 18:15:19 [ITclan] error: Cannot call abortTransaction after calling commitTransaction
+Fri Jun 23 2023 18:22:3 [ITclan] error: MongoServerError: E11000 duplicate key error collection: university-management.students index: email_1 dup key: { email: "user2@gmail.com" }
+Fri Jun 23 2023 18:25:39 [ITclan] error: MongoServerError: E11000 duplicate key error collection: university-management.students index: email_1 dup key: { email: "user2@gmail.com" }

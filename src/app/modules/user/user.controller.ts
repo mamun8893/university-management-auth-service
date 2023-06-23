@@ -20,6 +20,26 @@ const createStudent: RequestHandler = async (req, res) => {
   }
 }
 
+//create Admin
+
+const createAdmin: RequestHandler = async (req, res) => {
+  const { admin, ...userData } = req.body
+  console.log('admin->', admin, 'user Data->', userData)
+
+  try {
+    const result = await userService.createAdminToDB(admin, userData)
+    sendResponse<IUser>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User created successfully!',
+      data: result,
+    })
+  } catch (error: any) {
+    // throw new ApiError(httpStatus.BAD_REQUEST, error.message)
+  }
+}
+
 export const userController = {
   createStudent,
+  createAdmin,
 }
