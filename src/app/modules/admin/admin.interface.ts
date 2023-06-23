@@ -25,4 +25,13 @@ export type IAdmin = {
   profileImage?: string
 }
 
+export type IAdminFilters = {
+  searchTerm?: string
+  id?: string
+  bloodGroup?: string
+  email?: string
+  contactNo?: string
+  emergencyContactNo?: string
+}
+
 export type AdminModel = Model<IAdmin, Record<string, unknown>>
