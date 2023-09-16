@@ -1,115 +1,91 @@
-import { RequestHandler } from 'express'
-import httpStatus from 'http-status'
-import sendResponse from '../../../shared/sendResponse'
-import { managementDepartmentService } from './managementDepartment.service'
-import { IManagementDepartment } from './managementDepartment.interface'
-import pick from '../../../shared/pick'
-import { paginationFields } from '../../../constant/pagination'
-import { managementDepartmentFilterableFields } from './managementDepartment.constant'
-import ApiError from '../../../errors/ApiError'
+import { Request, Response } from 'express';
+import httpStatus from 'http-status';
+import { paginationFields } from '../../../constants/pagination';
+import catchAsync from '../../../shared/catchAsync';
+import pick from '../../../shared/pick';
+import sendResponse from '../../../shared/sendResponse';
+import { managementDepartmentFilterableFields } from './managementDepartment.constant';
+import { IManagementDepartment } from './managementDepartment.inerface';
+import { ManagementDepartmentService } from './managementDepartment.service';
 
-const createManagementDepartment: RequestHandler = async (req, res, next) => {
-  const { ...departmentData } = req.body
-  try {
-    const result =
-      await managementDepartmentService.createManagementDepartmentToDB(
-        departmentData
-      )
+const createDepartment = catchAsync(async (req: Request, res: Response) => {
+  const { ...departmentData } = req.body;
+  const result = await ManagementDepartmentService.createDepartment(
+    departmentData
+  );
+
+  sendResponse<IManagementDepartment>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Management department created successfully',
+    data: result,
+  });
+});
+
+const getAllDepartments = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, managementDepartmentFilterableFields);
+  const paginationOptions = pick(req.query, paginationFields);
+
+  const result = await ManagementDepartmentService.getAllDepartments(
+    filters,
+    paginationOptions
+  );
+
+  sendResponse<IManagementDepartment[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Management departments retrieved successfully',
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
+const getSingleDepartment = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await ManagementDepartmentService.getSingleDepartment(id);
+
+  sendResponse<IManagementDepartment>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Management department retieved successfully',
+    data: result,
+  });
+});
+
+const updateDepartment = catchAsync(
+  catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const updatedData = req.body;
+    const result = await ManagementDepartmentService.updateDepartment(
+      id,
+      updatedData
+    );
+
     sendResponse<IManagementDepartment>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Create management department successfully!',
+      message: 'Management department updated successfully',
       data: result,
-    })
-  } catch (error) {
-    next(error)
-  }
-}
+    });
+  })
+);
 
-const getAllManagementDepartment: RequestHandler = async (req, res) => {
-  const paginationOptions = pick(req.query, paginationFields)
-  const filters = pick(req.query, managementDepartmentFilterableFields)
+const deleteDepartment = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await ManagementDepartmentService.deleteDepartment(id);
 
-  try {
-    const result =
-      await managementDepartmentService.getAllManagementDepartmentFromDB(
-        filters,
-        paginationOptions
-      )
-    sendResponse<IManagementDepartment[]>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'Get all management department successfully!',
-      meta: result.meta,
-      data: result.data,
-    })
-  } catch (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, `${error}`)
-  }
-}
+  sendResponse<IManagementDepartment>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Management department deleted successfully',
+    data: result,
+  });
+});
 
-//get management department by id
-
-const getManagementDepartmentById: RequestHandler = async (req, res) => {
-  const { id } = req.params
-  try {
-    const result =
-      await managementDepartmentService.getManagementDepartmentByIdFromDB(id)
-    sendResponse<IManagementDepartment>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'Get management department by id successfully!',
-      data: result,
-    })
-  } catch (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, `${error}`)
-  }
-}
-
-//update management department by id
-
-const updateManagementDepartmentById: RequestHandler = async (req, res) => {
-  const { id } = req.params
-  const { ...updateData } = req.body
-  try {
-    const result =
-      await managementDepartmentService.updateManagementDepartmentToDB(
-        id,
-        updateData
-      )
-    sendResponse<IManagementDepartment>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'Update management department by id successfully!',
-      data: result,
-    })
-  } catch (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, `${error}`)
-  }
-}
-
-//delete management department by id
-
-const deleteManagementDepartmentById: RequestHandler = async (req, res) => {
-  const { id } = req.params
-  try {
-    const result =
-      await managementDepartmentService.deleteManagementDepartmentFromDB(id)
-    sendResponse<IManagementDepartment>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'Delete management department by id successfully!',
-      data: result,
-    })
-  } catch (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, `${error}`)
-  }
-}
-
-export const academicDepartmentController = {
-  createManagementDepartment,
-  getAllManagementDepartment,
-  getManagementDepartmentById,
-  updateManagementDepartmentById,
-  deleteManagementDepartmentById,
-}
+export const ManagementDepartmentController = {
+  createDepartment,
+  getAllDepartments,
+  getSingleDepartment,
+  updateDepartment,
+  deleteDepartment,
+};

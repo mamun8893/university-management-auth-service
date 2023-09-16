@@ -1,84 +1,98 @@
-import httpStatus from 'http-status'
-import ApiError from '../../../errors/ApiError'
+import httpStatus from 'http-status';
+import { SortOrder } from 'mongoose';
+import ApiError from '../../../errors/ApiError';
+import { paginationHelpers } from '../../../helpers/paginationHelper';
+import { IGenericResponse } from '../../../interfaces/common';
+import { IPaginationOptions } from '../../../interfaces/pagination';
 import {
   academicSemesterSearchableFields,
   academicSemesterTitleCodeMapper,
-} from './academicSemester.constant'
+} from './academicSemester.constant';
 import {
   IAcademicSemester,
   IAcademicSemesterFilters,
-} from './academicSemester.interface'
-import { AcademicSemester } from './academicSemester.model'
-import { IPaginationOption } from '../../../interfaces/pagination'
-import { IGenericResponse } from '../../../interfaces/common'
-import { paginationHelper } from '../../../helper/paginationHelper'
-import { SortOrder } from 'mongoose'
+} from './academicSemester.interface';
+import { AcademicSemester } from './academicSemester.model';
 
-//Create academic semester
-
-const createAcademicSemesterToDB = async (
+const createSemester = async (
   payload: IAcademicSemester
 ): Promise<IAcademicSemester> => {
   if (academicSemesterTitleCodeMapper[payload.title] !== payload.code) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid academic semester code')
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid Semester Code');
   }
-  const result = await AcademicSemester.create(payload)
-  return result
-}
+  const result = await AcademicSemester.create(payload);
+  return result;
+};
 
-//get all academic semester
-
-const getAllAcademicSemesterFromDB = async (
+const getAllsemesters = async (
   filters: IAcademicSemesterFilters,
-  paginationOption: IPaginationOption
+  paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<IAcademicSemester[]>> => {
-  //search filter
+  const { searchTerm, ...filtersData } = filters;
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelpers.calculatePagination(paginationOptions);
 
-  const { searchTerm, ...filtersData } = filters
-
-  const andConditions = []
+  const andConditions = [];
 
   if (searchTerm) {
-    const orConditions: { [key: string]: { $regex: RegExp } }[] = []
-    academicSemesterSearchableFields.forEach(field => {
-      orConditions.push({
+    andConditions.push({
+      $or: academicSemesterSearchableFields.map(field => ({
         [field]: {
-          $regex: new RegExp(searchTerm.toString(), 'i'),
+          $regex: searchTerm,
+          $options: 'i',
         },
-      })
-    })
-
-    andConditions.push({ $or: orConditions })
+      })),
+    });
   }
 
   if (Object.keys(filtersData).length) {
-    const filterConditions = Object.entries(filtersData).map(
-      ([field, value]) => ({
+    andConditions.push({
+      $and: Object.entries(filtersData).map(([field, value]) => ({
         [field]: value,
-      })
-    )
-
-    andConditions.push({ $and: filterConditions })
+      })),
+    });
   }
 
-  //pagination
-  const { page, limit, skip, sortBy, sortOrder } =
-    paginationHelper.calculatePagination(paginationOption)
+  // const andConditions = [
+  //   {
+  //     $or: [
+  //       {
+  //         title: {
+  //           $regex: searchTerm,
+  //           $options: 'i',
+  //         },
+  //       },
+  //       {
+  //         code: {
+  //           $regex: searchTerm,
+  //           $options: 'i',
+  //         },
+  //       },
+  //       {
+  //         year: {
+  //           $regex: searchTerm,
+  //           $options: 'i',
+  //         },
+  //       },
+  //     ],
+  //   },
+  // ];
 
-  const sortConditions: { [key: string]: SortOrder } = {}
+  const sortConditions: { [key: string]: SortOrder } = {};
+
   if (sortBy && sortOrder) {
-    sortConditions[sortBy] = sortOrder
+    sortConditions[sortBy] = sortOrder;
   }
-
   const whereConditions =
-    andConditions.length > 0 ? { $and: andConditions } : {}
+    andConditions.length > 0 ? { $and: andConditions } : {};
 
   const result = await AcademicSemester.find(whereConditions)
     .sort(sortConditions)
     .skip(skip)
-    .limit(limit)
+    .limit(limit);
 
-  const total = await AcademicSemester.countDocuments()
+  const total = await AcademicSemester.countDocuments();
+
   return {
     meta: {
       page,
@@ -86,45 +100,45 @@ const getAllAcademicSemesterFromDB = async (
       total,
     },
     data: result,
-  }
-}
+  };
+};
 
-//get academic semester by id
-const getAcademicSemesterByIdFromDB = async (id: string) => {
-  const result = await AcademicSemester.findById(id)
-  return result
-}
+const getSingleSemester = async (
+  id: string
+): Promise<IAcademicSemester | null> => {
+  const result = await AcademicSemester.findById(id);
+  return result;
+};
 
-//update academic semester by id
-
-const updateAcademicSemesterByIdFromDB = async (
+const updateSemester = async (
   id: string,
   payload: Partial<IAcademicSemester>
-) => {
+): Promise<IAcademicSemester | null> => {
   if (
     payload.title &&
     payload.code &&
     academicSemesterTitleCodeMapper[payload.title] !== payload.code
   ) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid academic semester code')
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid Semester Code');
   }
+
   const result = await AcademicSemester.findOneAndUpdate({ _id: id }, payload, {
     new: true,
-  })
-  return result
-}
+  });
+  return result;
+};
 
-// delete academic semester by id
+const deleteSemester = async (
+  id: string
+): Promise<IAcademicSemester | null> => {
+  const result = await AcademicSemester.findByIdAndDelete(id);
+  return result;
+};
 
-const deleteAcademicSemesterByIdFromDB = async (id: string) => {
-  const result = await AcademicSemester.findByIdAndDelete(id)
-  return result
-}
-
-export const academicSemesterService = {
-  createAcademicSemesterToDB,
-  getAllAcademicSemesterFromDB,
-  getAcademicSemesterByIdFromDB,
-  updateAcademicSemesterByIdFromDB,
-  deleteAcademicSemesterByIdFromDB,
-}
+export const AcademicSemesterService = {
+  createSemester,
+  getAllsemesters,
+  getSingleSemester,
+  updateSemester,
+  deleteSemester,
+};

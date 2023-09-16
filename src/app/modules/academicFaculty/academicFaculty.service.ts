@@ -1,76 +1,65 @@
-import { SortOrder } from 'mongoose'
-import { paginationHelper } from '../../../helper/paginationHelper'
-import { IGenericResponse } from '../../../interfaces/common'
-import { IPaginationOption } from '../../../interfaces/pagination'
-import { academicSemesterSearchableFields } from '../academicSemester/academicSemester.constant'
+import { SortOrder } from 'mongoose';
+import { paginationHelpers } from '../../../helpers/paginationHelper';
+import { IGenericResponse } from '../../../interfaces/common';
+import { IPaginationOptions } from '../../../interfaces/pagination';
+import { academicFacultySearchableFields } from './academicFaculty.constants';
 import {
   IAcademicFaculty,
   IAcademicFacultyFilters,
-} from './academicFaculty.interface'
-import { AcademicFaculty } from './academicFaculty.modal'
+} from './academicFaculty.interfaces';
+import { AcademicFaculty } from './academicFaculty.model';
 
-//create academic faculty
-
-const createAcademicFacultyFromDB = async (
+const createFaculty = async (
   payload: IAcademicFaculty
-): Promise<IAcademicFaculty> => {
-  const result = await AcademicFaculty.create(payload)
-  return result
-}
+): Promise<IAcademicFaculty | null> => {
+  const result = await AcademicFaculty.create(payload);
+  return result;
+};
 
-//get all academic semester
-
-const getAllAcademicFacultyFromDB = async (
+const getAllFaculties = async (
   filters: IAcademicFacultyFilters,
-  paginationOption: IPaginationOption
+  paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<IAcademicFaculty[]>> => {
-  //search filter
+  const { searchTerm, ...filtersData } = filters;
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelpers.calculatePagination(paginationOptions);
 
-  const { searchTerm, ...filtersData } = filters
-
-  const andConditions = []
+  const andConditions = [];
 
   if (searchTerm) {
-    const orConditions: { [key: string]: { $regex: RegExp } }[] = []
-    academicSemesterSearchableFields.forEach(field => {
-      orConditions.push({
+    andConditions.push({
+      $or: academicFacultySearchableFields.map(field => ({
         [field]: {
-          $regex: new RegExp(searchTerm.toString(), 'i'),
+          $regex: searchTerm,
+          $options: 'i',
         },
-      })
-    })
-
-    andConditions.push({ $or: orConditions })
+      })),
+    });
   }
 
   if (Object.keys(filtersData).length) {
-    const filterConditions = Object.entries(filtersData).map(
-      ([field, value]) => ({
+    andConditions.push({
+      $and: Object.entries(filtersData).map(([field, value]) => ({
         [field]: value,
-      })
-    )
-
-    andConditions.push({ $and: filterConditions })
+      })),
+    });
   }
 
-  //pagination
-  const { page, limit, skip, sortBy, sortOrder } =
-    paginationHelper.calculatePagination(paginationOption)
-  //sortby(fields name) and sortorder(asc,desc)
-  const sortConditions: { [key: string]: SortOrder } = {}
+  const sortConditions: { [key: string]: SortOrder } = {};
+
   if (sortBy && sortOrder) {
-    sortConditions[sortBy] = sortOrder
+    sortConditions[sortBy] = sortOrder;
   }
-
   const whereConditions =
-    andConditions.length > 0 ? { $and: andConditions } : {}
+    andConditions.length > 0 ? { $and: andConditions } : {};
 
   const result = await AcademicFaculty.find(whereConditions)
     .sort(sortConditions)
     .skip(skip)
-    .limit(limit)
+    .limit(limit);
 
-  const total = await AcademicFaculty.countDocuments()
+  const total = await AcademicFaculty.countDocuments();
+
   return {
     meta: {
       page,
@@ -78,39 +67,37 @@ const getAllAcademicFacultyFromDB = async (
       total,
     },
     data: result,
-  }
-}
+  };
+};
 
-//get academic semester by id
+const getSingleFaculty = async (
+  id: string
+): Promise<IAcademicFaculty | null> => {
+  const result = await AcademicFaculty.findById(id);
+  return result;
+};
 
-const getAcademicFacultyByIdFromDB = async (id: string) => {
-  const result = await AcademicFaculty.findById(id)
-  return result
-}
-
-//update academic semester
-
-const updateAcademicFacultyByIdFromDB = async (
+const updateFaculty = async (
   id: string,
   payload: Partial<IAcademicFaculty>
-) => {
-  const result = await AcademicFaculty.findByIdAndUpdate({ _id: id }, payload, {
+): Promise<IAcademicFaculty | null> => {
+  const result = await AcademicFaculty.findOneAndUpdate({ _id: id }, payload, {
     new: true,
-  })
-  return result
-}
+  });
+  return result;
+};
 
-//delete academic semester
+const deleteByIdFromDB = async (
+  id: string
+): Promise<IAcademicFaculty | null> => {
+  const result = await AcademicFaculty.findByIdAndDelete(id);
+  return result;
+};
 
-const deleteAcademicFacultyByIdFromDB = async (id: string) => {
-  const result = await AcademicFaculty.findByIdAndDelete(id)
-  return result
-}
-
-export const academicFacultyService = {
-  createAcademicFacultyFromDB,
-  getAllAcademicFacultyFromDB,
-  getAcademicFacultyByIdFromDB,
-  updateAcademicFacultyByIdFromDB,
-  deleteAcademicFacultyByIdFromDB,
-}
+export const AcademicFacultyService = {
+  createFaculty,
+  getAllFaculties,
+  getSingleFaculty,
+  updateFaculty,
+  deleteByIdFromDB,
+};

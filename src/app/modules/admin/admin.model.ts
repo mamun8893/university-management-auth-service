@@ -1,8 +1,7 @@
-import { Schema, model } from 'mongoose'
-import { AdminModel, IAdmin } from './admin.interface'
-import { bloodGroup, gender } from './admin.constant'
+import { Schema, model } from 'mongoose';
+import { AdminModel, IAdmin } from './admin.interface';
 
-export const adminSchema = new Schema<IAdmin, AdminModel>(
+const AdminSchema = new Schema<IAdmin, AdminModel>(
   {
     id: {
       type: String,
@@ -15,13 +14,13 @@ export const adminSchema = new Schema<IAdmin, AdminModel>(
           type: String,
           required: true,
         },
-        middleName: {
-          type: String,
-          required: false,
-        },
         lastName: {
           type: String,
           required: true,
+        },
+        middleName: {
+          type: String,
+          required: false,
         },
       },
       required: true,
@@ -29,22 +28,27 @@ export const adminSchema = new Schema<IAdmin, AdminModel>(
     dateOfBirth: {
       type: String,
     },
+    gender: {
+      type: String,
+      enum: ['male', 'female'],
+    },
+    bloodGroup: {
+      type: String,
+      enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+    },
     email: {
       type: String,
-      required: true,
       unique: true,
+      required: true,
     },
     contactNo: {
       type: String,
+      unique: true,
       required: true,
     },
     emergencyContactNo: {
       type: String,
       required: true,
-    },
-    gender: {
-      type: String,
-      enum: gender,
     },
     presentAddress: {
       type: String,
@@ -54,13 +58,9 @@ export const adminSchema = new Schema<IAdmin, AdminModel>(
       type: String,
       required: true,
     },
-    bloodGroup: {
-      type: String,
-      enum: bloodGroup,
-    },
     managementDepartment: {
       type: Schema.Types.ObjectId,
-      ref: 'ManagementDepartment', //management department model name dile oi model ar sob data pawa jabe
+      ref: 'ManagementDepartment',
       required: true,
     },
     designation: {
@@ -73,10 +73,7 @@ export const adminSchema = new Schema<IAdmin, AdminModel>(
   },
   {
     timestamps: true,
-    toJSON: {
-      virtuals: true,
-    },
   }
-)
+);
 
-export const Admin = model<IAdmin, AdminModel>('Admin', adminSchema)
+export const Admin = model<IAdmin, AdminModel>('Admin', AdminSchema);

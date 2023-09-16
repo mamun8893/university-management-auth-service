@@ -1,2 +1,0 @@
-Fri Jun 23 2023 21:0:30 [ITclan] error: MongoServerError: E11000 duplicate key error collection: university-management.students index: email_1 dup key: { email: "user2@gmail.com" }
-Fri Jun 23 2023 21:4:21 [ITclan] error: MongoServerError: E11000 duplicate key error collection: university-management.students index: email_1 dup key: { email: "user2@gmail.com" }

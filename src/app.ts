@@ -1,44 +1,41 @@
-import express, { Application, NextFunction, Request, Response } from 'express'
-import cors from 'cors'
-import globalErrorHandler from './app/middlewares/globalErrorHandler'
-import routers from './routes/routes'
-import httpStatus from 'http-status'
+import cors from 'cors';
+import express, { Application, NextFunction, Request, Response } from 'express';
+import httpStatus from 'http-status';
+import globalErrorHandler from './app/middlewares/globalErrorHandler';
+import routes from './app/routes';
+const app: Application = express();
 
-const app: Application = express()
+app.use(cors());
 
-//use cors middleware
-app.use(cors())
+//parser
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-//use json middleware
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+// app.use('/api/v1/users/', UserRoutes);
+// app.use('/api/v1/academic-semesters', AcademicSemesterRoutes);
+app.use('/api/v1', routes);
 
-//Api Route
-
-app.use('/api/v1', routers)
-
-//testong error
-// app.get('/error', async (req, res, next) => {
-//   //   Promise.reject(new Error('Unhandle Promise Rejection'))
-//   //   console.log(x)
+//Testing
+// app.get('/', async (req: Request, res: Response, next: NextFunction) => {
+//   throw new Error('Testing Error logger')
 // })
-//Global Error Handler
-app.use(globalErrorHandler)
 
-//Route Not Found
+//global error handler
+app.use(globalErrorHandler);
 
+//handle not found
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.status(httpStatus.NOT_FOUND).json({
     success: false,
     message: 'Not Found',
-    errorMessage: [
+    errorMessages: [
       {
         path: req.originalUrl,
-        message: 'Route Not Found',
+        message: 'API Not Found',
       },
     ],
-  })
-  next()
-})
+  });
+  next();
+});
 
-export default app
+export default app;

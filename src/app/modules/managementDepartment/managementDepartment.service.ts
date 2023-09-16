@@ -1,73 +1,65 @@
-import { paginationHelper } from '../../../helper/paginationHelper'
-import { IPaginationOption } from '../../../interfaces/pagination'
-import { IManagementDepartment } from './managementDepartment.interface'
-import { managementDepartment } from './managementDepartment.model'
-import { IManagementDepartmentFilter } from './managementDepartment.interface'
-import { SortOrder } from 'mongoose'
-import { IGenericResponse } from '../../../interfaces/common'
-import { managementDepartmentSearchableFields } from './managementDepartment.constant'
+import { SortOrder } from 'mongoose';
+import { paginationHelpers } from '../../../helpers/paginationHelper';
+import { IGenericResponse } from '../../../interfaces/common';
+import { IPaginationOptions } from '../../../interfaces/pagination';
+import { managementDepartmentSearchableFields } from './managementDepartment.constant';
+import {
+  IManagementDepartment,
+  IManagementDepartmentFilters,
+} from './managementDepartment.inerface';
+import { ManagementDepartment } from './managementDepartment.model';
 
-const createManagementDepartmentToDB = async (
+const createDepartment = async (
   payload: IManagementDepartment
-): Promise<IManagementDepartment> => {
-  const result = await managementDepartment.create(payload)
-  return result
-}
+): Promise<IManagementDepartment | null> => {
+  const result = await ManagementDepartment.create(payload);
+  return result;
+};
 
-const getAllManagementDepartmentFromDB = async (
-  filters: IManagementDepartmentFilter,
-  paginationOption: IPaginationOption
+const getAllDepartments = async (
+  filters: IManagementDepartmentFilters,
+  paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<IManagementDepartment[]>> => {
-  const { searchTerm, ...filtersData } = filters
-
-  //calculate pagination
-
+  const { searchTerm, ...filtersData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
-    paginationHelper.calculatePagination(paginationOption)
+    paginationHelpers.calculatePagination(paginationOptions);
 
-  //sorting
-
-  const sortConditions: { [key: string]: SortOrder } = {}
-  if (sortBy && sortOrder) {
-    sortConditions[sortBy] = sortOrder
-  }
-
-  //search filter
-
-  const andConditions = []
+  const andConditions = [];
 
   if (searchTerm) {
-    const orConditions: { [key: string]: { $regex: RegExp } }[] = []
-    managementDepartmentSearchableFields.forEach(field => {
-      orConditions.push({
+    andConditions.push({
+      $or: managementDepartmentSearchableFields.map(field => ({
         [field]: {
-          $regex: new RegExp(searchTerm.toString(), 'i'),
+          $regex: searchTerm,
+          $options: 'i',
         },
-      })
-    })
-
-    andConditions.push({ $or: orConditions })
+      })),
+    });
   }
 
   if (Object.keys(filtersData).length) {
-    const filterConditions = Object.entries(filtersData).map(
-      ([field, value]) => ({
+    andConditions.push({
+      $and: Object.entries(filtersData).map(([field, value]) => ({
         [field]: value,
-      })
-    )
-    andConditions.push({ $and: filterConditions })
+      })),
+    });
   }
-  //check if there is any condition
-  const whereConditions =
-    andConditions.length > 0 ? { $and: andConditions } : {}
-  //database query
-  const result = await managementDepartment
-    .find(whereConditions)
-    .sort(sortConditions)
-    .limit(limit)
-    .skip(skip)
 
-  const total = await managementDepartment.countDocuments()
+  const sortConditions: { [key: string]: SortOrder } = {};
+
+  if (sortBy && sortOrder) {
+    sortConditions[sortBy] = sortOrder;
+  }
+  const whereConditions =
+    andConditions.length > 0 ? { $and: andConditions } : {};
+
+  const result = await ManagementDepartment.find(whereConditions)
+    .sort(sortConditions)
+    .skip(skip)
+    .limit(limit);
+
+  const total = await ManagementDepartment.countDocuments();
+
   return {
     meta: {
       page,
@@ -75,41 +67,41 @@ const getAllManagementDepartmentFromDB = async (
       total,
     },
     data: result,
-  }
-}
+  };
+};
 
-//get management department by id
+const getSingleDepartment = async (
+  id: string
+): Promise<IManagementDepartment | null> => {
+  const result = await ManagementDepartment.findById(id);
+  return result;
+};
 
-const getManagementDepartmentByIdFromDB = async (id: string) => {
-  const result = await managementDepartment.findById(id)
-  return result
-}
-
-//update management department
-
-const updateManagementDepartmentToDB = async (
+const updateDepartment = async (
   id: string,
   payload: Partial<IManagementDepartment>
-) => {
-  const result = await managementDepartment.findByIdAndUpdate(
+): Promise<IManagementDepartment | null> => {
+  const result = await ManagementDepartment.findOneAndUpdate(
     { _id: id },
     payload,
-    { new: true }
-  )
-  return result
-}
+    {
+      new: true,
+    }
+  );
+  return result;
+};
 
-//delete management department
+const deleteDepartment = async (
+  id: string
+): Promise<IManagementDepartment | null> => {
+  const result = await ManagementDepartment.findByIdAndDelete(id);
+  return result;
+};
 
-const deleteManagementDepartmentFromDB = async (id: string) => {
-  const result = await managementDepartment.findByIdAndDelete(id)
-  return result
-}
-
-export const managementDepartmentService = {
-  createManagementDepartmentToDB,
-  getAllManagementDepartmentFromDB,
-  getManagementDepartmentByIdFromDB,
-  updateManagementDepartmentToDB,
-  deleteManagementDepartmentFromDB,
-}
+export const ManagementDepartmentService = {
+  createDepartment,
+  getAllDepartments,
+  getSingleDepartment,
+  updateDepartment,
+  deleteDepartment,
+};

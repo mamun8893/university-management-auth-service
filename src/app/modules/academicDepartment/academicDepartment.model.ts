@@ -1,14 +1,18 @@
-import { Schema, model } from 'mongoose'
+import { Schema, model } from 'mongoose';
 import {
   AcademicDepartmentModel,
   IAcademicDepartment,
-} from './academicDepartment.interface'
+} from './academicDepartment.interfaces';
 
-const academicDepartmentSchema = new Schema(
+const AcademicDepartmentSchema = new Schema<
+  IAcademicDepartment,
+  AcademicDepartmentModel
+>(
   {
     title: {
       type: String,
       required: true,
+      unique: true,
     },
     academicFaculty: {
       type: Schema.Types.ObjectId,
@@ -22,9 +26,9 @@ const academicDepartmentSchema = new Schema(
       virtuals: true,
     },
   }
-)
+);
 
 export const AcademicDepartment = model<
   IAcademicDepartment,
   AcademicDepartmentModel
->('AcademicDepartment', academicDepartmentSchema)
+>('AcademicDepartment', AcademicDepartmentSchema);

@@ -1,6 +1,6 @@
-import { Schema, model } from 'mongoose'
-import { bloodGroup, gender } from './student.constant'
-import { IStudent, StudentModel } from './student.interface'
+import { Schema, model } from 'mongoose';
+import { bloodGroup, gender } from './student.constant';
+import { IStudent, StudentModel } from './student.interface';
 
 export const StudentSchema = new Schema<IStudent, StudentModel>(
   {
@@ -15,13 +15,13 @@ export const StudentSchema = new Schema<IStudent, StudentModel>(
           type: String,
           required: true,
         },
-        middleName: {
-          type: String,
-          required: false,
-        },
         lastName: {
           type: String,
           required: true,
+        },
+        middleName: {
+          type: String,
+          required: false,
         },
       },
       required: true,
@@ -35,13 +35,13 @@ export const StudentSchema = new Schema<IStudent, StudentModel>(
     },
     email: {
       type: String,
-      required: true,
       unique: true,
+      required: true,
     },
     contactNo: {
       type: String,
-      required: true,
       unique: true,
+      required: true,
     },
     emergencyContactNo: {
       type: String,
@@ -124,12 +124,13 @@ export const StudentSchema = new Schema<IStudent, StudentModel>(
       required: true,
     },
     academicSemester: {
-      type: Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId, // academicSemester --> _id
       ref: 'AcademicSemester',
       required: true,
     },
     profileImage: {
       type: String,
+      // required: true,
     },
   },
   {
@@ -138,6 +139,10 @@ export const StudentSchema = new Schema<IStudent, StudentModel>(
       virtuals: true,
     },
   }
-)
+);
 
-export const Student = model<IStudent, StudentModel>('Student', StudentSchema)
+// StudentSchema.index({
+//   bloodGroup: 1,
+// });
+
+export const Student = model<IStudent, StudentModel>('Student', StudentSchema);

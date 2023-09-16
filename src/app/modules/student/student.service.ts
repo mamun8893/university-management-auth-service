@@ -1,63 +1,63 @@
-import { SortOrder } from 'mongoose'
-import { paginationHelper } from '../../../helper/paginationHelper'
-import { IPaginationOption } from '../../../interfaces/pagination'
-import { IStudent, IStudentFilters } from './student.interface'
-import { studentSearchableFields } from './student.constant'
-import { Student } from './student.model'
-import ApiError from '../../../errors/ApiError'
-import httpStatus from 'http-status'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import mongoose, { SortOrder } from 'mongoose';
+import { paginationHelpers } from '../../../helpers/paginationHelper';
+import { IGenericResponse } from '../../../interfaces/common';
+import { IPaginationOptions } from '../../../interfaces/pagination';
 
-const getAllStudentsFromDB = async (
+import httpStatus from 'http-status';
+import ApiError from '../../../errors/ApiError';
+import { User } from '../user/user.model';
+import { studentSearchableFields } from './student.constant';
+import { IStudent, IStudentFilters } from './student.interface';
+import { Student } from './student.model';
+
+const getAllStudents = async (
   filters: IStudentFilters,
-  paginationOption: IPaginationOption
-) => {
-  //search filter
+  paginationOptions: IPaginationOptions
+): Promise<IGenericResponse<IStudent[]>> => {
+  const { searchTerm, ...filtersData } = filters;
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelpers.calculatePagination(paginationOptions);
 
-  const { searchTerm, ...filtersData } = filters
-
-  const andConditions = []
+  const andConditions = [];
 
   if (searchTerm) {
-    const orConditions: { [key: string]: { $regex: RegExp } }[] = []
-    studentSearchableFields.forEach(field => {
-      orConditions.push({
+    andConditions.push({
+      $or: studentSearchableFields.map(field => ({
         [field]: {
-          $regex: new RegExp(searchTerm.toString(), 'i'),
+          $regex: searchTerm,
+          $options: 'i',
         },
-      })
-    })
-
-    andConditions.push({ $or: orConditions })
+      })),
+    });
   }
 
   if (Object.keys(filtersData).length) {
-    const filterConditions = Object.entries(filtersData).map(
-      ([field, value]) => ({
+    andConditions.push({
+      $and: Object.entries(filtersData).map(([field, value]) => ({
         [field]: value,
-      })
-    )
-
-    andConditions.push({ $and: filterConditions })
+      })),
+    });
   }
 
-  //pagination
-  const { page, limit, skip, sortBy, sortOrder } =
-    paginationHelper.calculatePagination(paginationOption)
+  const sortConditions: { [key: string]: SortOrder } = {};
 
-  const sortConditions: { [key: string]: SortOrder } = {}
   if (sortBy && sortOrder) {
-    sortConditions[sortBy] = sortOrder
+    sortConditions[sortBy] = sortOrder;
   }
-
   const whereConditions =
-    andConditions.length > 0 ? { $and: andConditions } : {}
+    andConditions.length > 0 ? { $and: andConditions } : {};
 
   const result = await Student.find(whereConditions)
+    .populate('academicSemester')
+    .populate('academicDepartment')
+    .populate('academicFaculty')
     .sort(sortConditions)
     .skip(skip)
-    .limit(limit)
+    .limit(limit);
 
-  const total = await Student.countDocuments()
+  const total = await Student.countDocuments(whereConditions);
+
   return {
     meta: {
       page,
@@ -65,66 +65,91 @@ const getAllStudentsFromDB = async (
       total,
     },
     data: result,
-  }
-}
+  };
+};
 
-//get student by id
-
-const getStudentByIdFromDB = async (id: string) => {
+const getSingleStudent = async (id: string): Promise<IStudent | null> => {
   const result = await Student.findOne({ id })
-  return result
-}
+    .populate('academicSemester')
+    .populate('academicDepartment')
+    .populate('academicFaculty');
+  return result;
+};
 
-//update student by id
-
-const updateStudentByIdFromDB = async (
+const updateStudent = async (
   id: string,
   payload: Partial<IStudent>
 ): Promise<IStudent | null> => {
-  const isExist = await Student.findOne({ id })
+  const isExist = await Student.findOne({ id });
+
   if (!isExist) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Student not found')
+    throw new ApiError(httpStatus.NOT_FOUND, 'Student not found !');
   }
-  const { name, guardian, localGuardian, ...studentData } = payload
-  const updatedStudentData: Partial<IStudent> = { ...studentData }
+
+  const { name, guardian, localGuardian, ...studentData } = payload;
+
+  const updatedStudentData: Partial<IStudent> = { ...studentData };
 
   if (name && Object.keys(name).length > 0) {
     Object.keys(name).forEach(key => {
-      ;(updatedStudentData as any)[`name.${key}`] =
-        name[key as keyof typeof name]
-    })
+      const nameKey = `name.${key}` as keyof Partial<IStudent>; // `name.fisrtName`
+      (updatedStudentData as any)[nameKey] = name[key as keyof typeof name];
+    });
   }
   if (guardian && Object.keys(guardian).length > 0) {
     Object.keys(guardian).forEach(key => {
-      ;(updatedStudentData as any)[`guardian.${key}`] =
-        guardian[key as keyof typeof guardian]
-    })
+      const guardianKey = `guardian.${key}` as keyof Partial<IStudent>; // `guardian.fisrtguardian`
+      (updatedStudentData as any)[guardianKey] =
+        guardian[key as keyof typeof guardian];
+    });
   }
   if (localGuardian && Object.keys(localGuardian).length > 0) {
     Object.keys(localGuardian).forEach(key => {
-      ;(updatedStudentData as any)[`localGuardian.${key}`] =
-        localGuardian[key as keyof typeof localGuardian]
-    })
+      const localGuradianKey =
+        `localGuardian.${key}` as keyof Partial<IStudent>; // `localGuardian.fisrtName`
+      (updatedStudentData as any)[localGuradianKey] =
+        localGuardian[key as keyof typeof localGuardian];
+    });
   }
 
-  const result = await Student.findOneAndUpdate(
-    { id: id },
-    updatedStudentData,
-    { new: true }
-  )
-  return result
-}
+  const result = await Student.findOneAndUpdate({ id }, updatedStudentData, {
+    new: true,
+  });
+  return result;
+};
 
-//delete student by id
+const deleteStudent = async (id: string): Promise<IStudent | null> => {
+  // check if the faculty is exist
+  const isExist = await Student.findOne({ id });
 
-const deleteStudentByIdFromDB = async (id: string) => {
-  const result = await Student.findByIdAndDelete(id)
-  return result
-}
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Faculty not found !');
+  }
 
-export const studentService = {
-  getAllStudentsFromDB,
-  getStudentByIdFromDB,
-  deleteStudentByIdFromDB,
-  updateStudentByIdFromDB,
-}
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+    //delete student first
+    const student = await Student.findOneAndDelete({ id }, { session });
+    if (!student) {
+      throw new ApiError(404, 'Failed to delete student');
+    }
+    //delete user
+    await User.deleteOne({ id });
+    session.commitTransaction();
+    session.endSession();
+
+    return student;
+  } catch (error) {
+    session.abortTransaction();
+    throw error;
+  }
+};
+
+export const StudentService = {
+  getAllStudents,
+  getSingleStudent,
+  updateStudent,
+  deleteStudent,
+};

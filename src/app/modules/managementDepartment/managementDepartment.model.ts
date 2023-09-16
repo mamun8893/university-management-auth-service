@@ -1,20 +1,29 @@
-import { Schema, model } from 'mongoose'
-import { IAcademicDepartment } from '../academicDepartment/academicDepartment.interface'
+import { Schema, model } from 'mongoose';
+import {
+  IManagementDepartment,
+  ManagementDepartmentModel,
+} from './managementDepartment.inerface';
 
-const ManagementDepartmentSchema = new Schema<IAcademicDepartment>(
+const ManagementDepartmentSchema = new Schema<
+  IManagementDepartment,
+  ManagementDepartmentModel
+>(
   {
     title: {
       type: String,
       required: true,
+      unique: true,
     },
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
+    toJSON: {
+      virtuals: true,
+    },
   }
-)
+);
 
-export const managementDepartment = model(
-  'ManagementDepartment',
-  ManagementDepartmentSchema
-)
+export const ManagementDepartment = model<
+  IManagementDepartment,
+  ManagementDepartmentModel
+>('ManagementDepartment', ManagementDepartmentSchema);

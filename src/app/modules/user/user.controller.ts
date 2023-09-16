@@ -1,45 +1,55 @@
-import { RequestHandler } from 'express'
-import { userService } from './user.service'
-import sendResponse from '../../../shared/sendResponse'
-import { IUser } from './user.interface'
-import httpStatus from 'http-status'
-import ApiError from '../../../errors/ApiError'
+import { Request, Response } from 'express';
+import { RequestHandler } from 'express-serve-static-core';
+import httpStatus from 'http-status';
+import catchAsync from '../../../shared/catchAsync';
+import sendResponse from '../../../shared/sendResponse';
+import { IUser } from './user.interface';
+import { UserService } from './user.service';
 
-const createStudent: RequestHandler = async (req, res) => {
-  const { student, ...userData } = req.body
-  try {
-    const result = await userService.createStudentToDB(student, userData)
+const createStudent: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const { student, ...userData } = req.body;
+    const result = await UserService.createStudent(student, userData);
+
     sendResponse<IUser>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'User created successfully!',
+      message: 'user created successfully!',
       data: result,
-    })
-  } catch (error: any) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.message)
+    });
   }
-}
+);
 
-//create Admin
+const createFaculy: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const { faculty, ...userData } = req.body;
+    const result = await UserService.createFaculty(faculty, userData);
 
-const createAdmin: RequestHandler = async (req, res) => {
-  const { admin, ...userData } = req.body
-  console.log('admin->', admin, 'user Data->', userData)
-
-  try {
-    const result = await userService.createAdminToDB(admin, userData)
     sendResponse<IUser>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'User created successfully!',
+      message: 'user created successfully!',
       data: result,
-    })
-  } catch (error: any) {
-    // throw new ApiError(httpStatus.BAD_REQUEST, error.message)
+    });
   }
-}
+);
 
-export const userController = {
+const createAdmin: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const { admin, ...userData } = req.body;
+    const result = await UserService.createAdmin(admin, userData);
+
+    sendResponse<IUser>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Admin created successfully!',
+      data: result,
+    });
+  }
+);
+
+export const UserController = {
   createStudent,
+  createFaculy,
   createAdmin,
-}
+};

@@ -1,116 +1,87 @@
-import { RequestHandler } from 'express'
-import httpStatus from 'http-status'
-import { IAcademicFaculty } from './academicFaculty.interface'
-import sendResponse from '../../../shared/sendResponse'
-import { academicFacultyService } from './academicFaculty.service'
-import { paginationFields } from '../../../constant/pagination'
-import { academicFacultyFilterFields } from './academicfaculty.constant'
-import pick from '../../../shared/pick'
-import ApiError from '../../../errors/ApiError'
+import { Request, Response } from 'express';
+import httpStatus from 'http-status';
+import { paginationFields } from '../../../constants/pagination';
+import catchAsync from '../../../shared/catchAsync';
+import pick from '../../../shared/pick';
+import sendResponse from '../../../shared/sendResponse';
+import { academicFacultyFilterableFields } from './academicFaculty.constants';
+import { IAcademicFaculty } from './academicFaculty.interfaces';
+import { AcademicFacultyService } from './academicFaculty.service';
 
-//Create academic faculty
+const createFaculty = catchAsync(async (req: Request, res: Response) => {
+  const { ...academicFacultyData } = req.body;
+  const result = await AcademicFacultyService.createFaculty(
+    academicFacultyData
+  );
+  sendResponse<IAcademicFaculty>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Academic Faculty created successfully',
+    data: result,
+  });
+});
 
-const academicFacultyCreate: RequestHandler = async (req, res, next) => {
-  const { ...academicFacultyData } = req.body
-  try {
-    const result = await academicFacultyService.createAcademicFacultyFromDB(
-      academicFacultyData
-    )
-    sendResponse<IAcademicFaculty>(res, {
-      statusCode: httpStatus.CREATED,
-      success: true,
-      message: 'Create academic faculty successfully!',
-      data: result,
-    })
-  } catch (error) {
-    next(error)
-  }
-}
+const getAllFaculties = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, academicFacultyFilterableFields);
+  const paginationOptions = pick(req.query, paginationFields);
 
-//Get all academic faculty
+  const result = await AcademicFacultyService.getAllFaculties(
+    filters,
+    paginationOptions
+  );
 
-const getAllFaculty: RequestHandler = async (req, res, next) => {
-  const filters = pick(req.query, academicFacultyFilterFields)
-  const paginationOption = pick(req.query, paginationFields)
+  sendResponse<IAcademicFaculty[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Academic Faculties retrieved successfully',
+    meta: result.meta,
+    data: result.data,
+  });
+});
 
-  try {
-    const result = await academicFacultyService.getAllAcademicFacultyFromDB(
-      filters,
-      paginationOption
-    )
-    sendResponse<IAcademicFaculty[]>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'Get all academic semester successfully!',
-      meta: result.meta,
-      data: result.data,
-    })
-  } catch (error) {
-    next(error)
-  }
-}
+const getSingleFaculty = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await AcademicFacultyService.getSingleFaculty(id);
 
-//get academic faculty by id
+  sendResponse<IAcademicFaculty>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Academic Faculty fetched successfully',
+    data: result,
+  });
+});
 
-const getAcademicFacultyById: RequestHandler = async (req, res) => {
-  const { id } = req.params
-  try {
-    const result = await academicFacultyService.getAcademicFacultyByIdFromDB(id)
-    sendResponse<IAcademicFaculty>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'Get academic faculty  successfully!',
-      data: result,
-    })
-  } catch (error) {
-    throw new ApiError(httpStatus.NOT_FOUND, `${error}`)
-  }
-}
+const updateFaculty = catchAsync(
+  catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const updatedData = req.body;
+    const result = await AcademicFacultyService.updateFaculty(id, updatedData);
 
-//update academic faculty by id
-
-const updateAcademicFacultyById: RequestHandler = async (req, res) => {
-  const { id } = req.params
-  const { ...updateData } = req.body
-  try {
-    const result = await academicFacultyService.updateAcademicFacultyByIdFromDB(
-      id,
-      updateData
-    )
     sendResponse<IAcademicFaculty>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Update academic faculty  successfully!',
+      message: 'Academic Faculty updated successfully',
       data: result,
-    })
-  } catch (error) {
-    throw new ApiError(httpStatus.NOT_FOUND, `${error}`)
-  }
-}
+    });
+  })
+);
 
-//delete academic faculty by id
+const deleteFaculty = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await AcademicFacultyService.deleteByIdFromDB(id);
 
-const deleteAcademicFacultyById: RequestHandler = async (req, res) => {
-  const { id } = req.params
-  try {
-    const result = await academicFacultyService.deleteAcademicFacultyByIdFromDB(
-      id
-    )
-    sendResponse<IAcademicFaculty>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'Delete academic faculty  successfully!',
-      data: result,
-    })
-  } catch (error) {
-    throw new ApiError(httpStatus.NOT_FOUND, `${error}`)
-  }
-}
+  sendResponse<IAcademicFaculty>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Academic Faculty deleted successfully',
+    data: result,
+  });
+});
 
-export const academicFacultyController = {
-  academicFacultyCreate,
-  getAllFaculty,
-  getAcademicFacultyById,
-  updateAcademicFacultyById,
-  deleteAcademicFacultyById,
-}
+export const AcademicFacultyController = {
+  createFaculty,
+  getAllFaculties,
+  getSingleFaculty,
+  updateFaculty,
+  deleteFaculty,
+};
