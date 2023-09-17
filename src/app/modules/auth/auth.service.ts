@@ -1,4 +1,6 @@
 import httpStatus from 'http-status';
+import jwt, { Secret } from 'jsonwebtoken';
+import config from '../../../config';
 import ApiError from '../../../errors/ApiError';
 import { User } from '../user/user.model';
 import { ILoginUser } from './auth.iterface';
@@ -26,7 +28,48 @@ const loginUser = async (payload: ILoginUser) => {
 
   //create jwt token
 
-  return {};
+  console.log(config.secret, config.expiration);
+
+  const accessToken = jwt.sign(
+    {
+      id: isUserExists.id,
+      role: isUserExists.role,
+    },
+    config.secret as Secret,
+    {
+      expiresIn: config.expiration,
+    }
+  );
+
+  const refreshToken = jwt.sign(
+    {
+      id: isUserExists.id,
+      role: isUserExists.role,
+    },
+    config.refresh_secret as Secret,
+    {
+      expiresIn: config.refresh_expiration,
+    }
+  );
+
+  // const refreshToken = jwt.sign(
+  //   {
+  //     id: isUserExists.id,
+  //     role: isUserExists.role,
+  //   },
+  //   config.refresh_secret as Secret,
+  //   {
+  //     expiresIn: config.refresh_secret,
+  //   }
+  // );
+
+  console.log(accessToken, refreshToken, isUserExists.needPasswordChange);
+
+  return {
+    accessToken,
+    refreshToken,
+    needPasswordChange: isUserExists.needPasswordChange,
+  };
 };
 
 export const authService = {
