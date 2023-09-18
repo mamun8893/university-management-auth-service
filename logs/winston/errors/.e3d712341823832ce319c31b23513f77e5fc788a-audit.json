@@ -49,6 +49,16 @@
             "date": 1694973834746,
             "name": "F:\\2023\\Next Level Web Development\\Mission3-auth-service\\university-management\\university-management-auth-service\\logs\\winston\\errors\\phu-2023-18-09-00-error.log",
             "hash": "d7bd19c8386a2a22c7f00e8b40d4d30804affde4d18b620045bff2d06a29c7fa"
+        },
+        {
+            "date": 1695053178477,
+            "name": "F:\\2023\\Next Level Web Development\\Mission3-auth-service\\university-management\\university-management-auth-service\\logs\\winston\\errors\\phu-2023-18-09-22-error.log",
+            "hash": "18a14a81fce2109e3f59e41f0674f22f7bee9c3d21cd90b3181178bf1ca2471c"
+        },
+        {
+            "date": 1695056765457,
+            "name": "F:\\2023\\Next Level Web Development\\Mission3-auth-service\\university-management\\university-management-auth-service\\logs\\winston\\errors\\phu-2023-18-09-23-error.log",
+            "hash": "6fab3aade78b5a814eebd428131ef774337ed9b7ff2e16830c9ca38cb2b93b98"
         }
     ],
     "hashType": "sha256"

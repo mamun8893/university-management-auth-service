@@ -2,16 +2,19 @@ import httpStatus from 'http-status';
 import jwt, { Secret } from 'jsonwebtoken';
 import config from '../../../config';
 import ApiError from '../../../errors/ApiError';
+import { jwtHelpers } from '../../../helpers/jwtHelpers';
 import { User } from '../user/user.model';
-import { ILoginUser } from './auth.iterface';
+import { ILoginUser, ILoginUserResponse } from './auth.iterface';
 
-const loginUser = async (payload: ILoginUser) => {
+const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const { id, password } = payload;
 
   //create instance of user model
   const user = new User();
   //check user exists
   const isUserExists = await user.isUserExist(id);
+
+  console.log('isUserExists', isUserExists);
 
   if (!isUserExists) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
@@ -28,50 +31,54 @@ const loginUser = async (payload: ILoginUser) => {
 
   //create jwt token
 
-  console.log(config.secret, config.expiration);
-
-  const accessToken = jwt.sign(
-    {
-      id: isUserExists.id,
-      role: isUserExists.role,
-    },
+  const { id: userId, role, needPasswordChange } = isUserExists;
+  const accessToken = jwtHelpers.createToken(
+    { userId, role },
     config.secret as Secret,
-    {
-      expiresIn: config.expiration,
-    }
+    config.expiration as string
   );
 
-  const refreshToken = jwt.sign(
-    {
-      id: isUserExists.id,
-      role: isUserExists.role,
-    },
+  const refreshToken = jwtHelpers.createToken(
+    { userId, role },
     config.refresh_secret as Secret,
-    {
-      expiresIn: config.refresh_expiration,
-    }
+    config.refresh_expiration as string
   );
-
-  // const refreshToken = jwt.sign(
-  //   {
-  //     id: isUserExists.id,
-  //     role: isUserExists.role,
-  //   },
-  //   config.refresh_secret as Secret,
-  //   {
-  //     expiresIn: config.refresh_secret,
-  //   }
-  // );
-
-  console.log(accessToken, refreshToken, isUserExists.needPasswordChange);
-
   return {
     accessToken,
     refreshToken,
-    needPasswordChange: isUserExists.needPasswordChange,
+    needPasswordChange,
+  };
+};
+
+const refreshToken = async (refreshToken: string) => {
+  //verify refresh token
+  let verifyToken = null;
+  try {
+    verifyToken = jwt.verify(refreshToken, config.refresh_secret as Secret);
+  } catch (error) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid refresh token');
+  }
+
+  const { userId } = verifyToken as { userId: string; role: string };
+  //checking deleted users token
+  const user = new User();
+  const isUserExists = await user.isUserExist(userId);
+  if (!isUserExists) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  //generate new access token
+  const newAccessToken = jwtHelpers.createToken(
+    { userId: isUserExists.id, role: isUserExists.role },
+    config.secret as Secret,
+    config.expiration as string
+  );
+  return {
+    accessToken: newAccessToken,
   };
 };
 
 export const authService = {
   loginUser,
+  refreshToken,
 };
